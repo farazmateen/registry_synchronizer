@@ -1,0 +1,26 @@
+registeries:
+  - master: registry1
+  - slave1: registry2
+  - slave2: registry3
+
+
+rules:
+  rule1: 
+    repo: ui
+    tags: 
+      - a
+      - b
+    source: master
+    destination: 
+      - slave1
+      - slave2
+  rule2:
+    repo: master
+    tags:  
+      - a
+      - b
+    source: master
+    destination:  
+      - slave1
+      - slave2
+        
