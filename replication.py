@@ -32,12 +32,17 @@ def get_disjoint(src_list, dst_list):
     return list(set(src_list) - set(dst_list))
 
 
-            subprocess.run(["docker pull registry1:5000/"+repo+":"+tag], shell=True)
-            subprocess.run(["docker tag registry1:5000/"+repo+":"+tag + " registry2:5000/"+repo+":"+tag], shell=True)
-            subprocess.run(["docker push "+ "reegistry2:5000/"+repo+":"+tag], shell=True)
-            log.info("Image pushed sucessfully.")
-        for tag in tags_list:
-            if tag not in ignored:
-                subprocess.run(["docker rmi "+ "registry2:5000/"+repo+":"+tag], shell=True)
-                subprocess.run(["docker rmi registry1/"+repo+":"+tag], shell=True)
+def pull_image(src_url, repo, tag):
+    subprocess.run(["docker pull registry1:5000/"+repo+":"+tag], shell=True)
+
+
+def tag_image(src_url, dst_url, repo, tag):
+    subprocess.run(["docker tag registry1:5000/"+repo+":"+tag + " registry2:5000/"+repo+":"+tag], shell=True)
+    
+def push_image(dst_url, repo, tag)
+    subprocess.run(["docker push "+ "reegistry2:5000/"+repo+":"+tag], shell=True)
+
+def clean_up(src_url, dst_url, repo, tag):
+    subprocess.run(["docker rmi "+ "registry2:5000/"+repo+":"+tag], shell=True)
+    subprocess.run(["docker rmi registry1/"+repo+":"+tag], shell=True)
 
