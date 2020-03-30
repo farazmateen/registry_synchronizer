@@ -8,7 +8,8 @@ import time
 import subprocess
 import yaml
 
-def read_config()
+
+def read_config():
     return yaml.load(open('config/config.yml'))
 
 
@@ -33,16 +34,17 @@ def get_disjoint(src_list, dst_list):
 
 
 def pull_image(src_url, repo, tag):
-    subprocess.run(["docker pull registry1:5000/"+repo+":"+tag], shell=True)
+    subprocess.run(["docker pull " + src_url + "/" + repo + ":" + tag], shell=True)
 
 
 def tag_image(src_url, dst_url, repo, tag):
-    subprocess.run(["docker tag registry1:5000/"+repo+":"+tag + " registry2:5000/"+repo+":"+tag], shell=True)
-    
-def push_image(dst_url, repo, tag)
-    subprocess.run(["docker push "+ "reegistry2:5000/"+repo+":"+tag], shell=True)
+    subprocess.run(["docker tag " + src_url + "/" + repo + ":" + tag + " " + dst_url + "/" + repo + ":" + tag], shell=True)
+
+
+def push_image(dst_url, repo, tag):
+    subprocess.run(["docker push " + dst_url + "/" + repo + ":" + tag], shell=True)
+
 
 def clean_up(src_url, dst_url, repo, tag):
-    subprocess.run(["docker rmi "+ "registry2:5000/"+repo+":"+tag], shell=True)
-    subprocess.run(["docker rmi registry1/"+repo+":"+tag], shell=True)
-
+    subprocess.run(["docker rmi " + src_url + "/" + repo + ":" + tag], shell=True)
+    subprocess.run(["docker rmi " + dst_url + "/" + repo + ":" + tag], shell=True)
