@@ -1,6 +1,6 @@
 registeries:
-  - master: docker.afiniti.com
-  - slave1: 10.32.8.226:5001
+  - master: reg1
+  - slave1: reg2
 
 
 rules:
