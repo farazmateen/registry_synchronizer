@@ -60,15 +60,17 @@ for server in config["registeries"]:
 for rule in config["rules"]:
     repo = config["rules"][rule]["repo"]
     source = servers_dict[config["rules"][rule]["source"]]
+    destination_list = [servers_dict[registry] for registry in config["rules"][rule]["destination"]
     tags = config["rules"][rule]["tags"]
     src_tags = fetch_tags_list(source, repo)
     # add check for existence
-    dst_tags = fetch_tags_list(destination, repo)
-    for tag in tags:
-        if tag not in dst_tags:
-            pull_image(source, repo, tag)
-            tag_image(source, destination, repo, tag)
-            push_image(dst_url, repo, tag)
+    for destination in destination_list:
+        dst_tags = fetch_tags_list(destination, repo)
+        for tag in tags:
+            if tag not in dst_tags:
+                pull_image(source, repo, tag)
+                tag_image(source, destination, repo, tag)
+                push_image(dst_url, repo, tag)
 
-    for tag in tags:
-        clean_up(source, destination, repo, tag)
+        for tag in tags:
+            clean_up(source, destination, repo, tag)
