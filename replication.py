@@ -26,7 +26,6 @@ def get_logger():
 logger = get_logger()
 
 def fetch_tags_list(registry_url, repo_name):
-    logger.info('Fetching all tags from % for %' % (c))
     return requests.get(registry_url + "/v2/" + repo_name + "/tags/list", verify=False).json()
 
 
@@ -60,12 +59,19 @@ for server in config["registeries"]:
 for rule in config["rules"]:
     repo = config["rules"][rule]["repo"]
     source = servers_dict[config["rules"][rule]["source"]]
-    destination_list = [servers_dict[registry] for registry in config["rules"][rule]["destination"]
+    destination_list = [servers_dict[registry] for registry in config["rules"][rule]["destination"]]
     tags = config["rules"][rule]["tags"]
-    src_tags = fetch_tags_list(source, repo)
+    src_resp = fetch_tags_list(source, repo)
+    if "tags" in src_resp:
+        src_tags = src_resp["tags"]
+    # add else condition
+
     # add check for existence
     for destination in destination_list:
-        dst_tags = fetch_tags_list(destination, repo)
+        dst_resp = fetch_tags_list(destination, repo)
+        dst_tags = []
+        if tags in dst_resp:
+            dst_tags = dst_resp["tags"]
         for tag in tags:
             if tag not in dst_tags:
                 pull_image(source, repo, tag)
