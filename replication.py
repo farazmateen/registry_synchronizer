@@ -23,9 +23,10 @@ def get_logger():
     log.addHandler(handler)
     return log
 
+logger = get_logger()
 
 def fetch_tags_list(registry_url, repo_name):
-    log.info('Fetching all tags from % for %' % (c))
+    logger.info('Fetching all tags from % for %' % (c))
     return requests.get(registry_url + "/v2/" + repo_name + "/tags/list", verify=False).json()
 
 
@@ -48,3 +49,27 @@ def push_image(dst_url, repo, tag):
 def clean_up(src_url, dst_url, repo, tag):
     subprocess.run(["docker rmi " + src_url + "/" + repo + ":" + tag], shell=True)
     subprocess.run(["docker rmi " + dst_url + "/" + repo + ":" + tag], shell=True)
+
+config = read_config()
+
+servers_dict = {}
+
+for server in config["registeries"]:
+    servers_dict.update(server)
+
+for rule in config["rules"]:
+    repo = config["rules"]["repo"]
+    source = config["rules"]["source"]
+    destination = config["rules"]["destination"]
+    tags = config["rules"]["tags"]
+    src_tags = fetch_tags_list(source, repo)
+    # add check for existence
+    dst_tags = fetch_tags_list(destination, repo)
+    for tag in tags:
+        if tag not in dst_tags:
+            pull_image(source, repo, tag)
+            tag_image(source, destination, repo, tag)
+            push_image(dst_url, repo, tag)
+
+    for tag in tags:
+        clean_up(source, destination, repo, tag)
