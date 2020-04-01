@@ -10,7 +10,7 @@ import yaml
 
 
 def read_config():
-    return yaml.load(open('config/config.yml'))
+    return yaml.load(open('config.yml', 'r'))
 
 
 def get_logger():
@@ -58,10 +58,9 @@ for server in config["registeries"]:
     servers_dict.update(server)
 
 for rule in config["rules"]:
-    repo = config["rules"]["repo"]
-    source = config["rules"]["source"]
-    destination = config["rules"]["destination"]
-    tags = config["rules"]["tags"]
+    repo = config["rules"][rule]["repo"]
+    source = servers_dict[config["rules"][rule]["source"]]
+    tags = config["rules"][rule]["tags"]
     src_tags = fetch_tags_list(source, repo)
     # add check for existence
     dst_tags = fetch_tags_list(destination, repo)

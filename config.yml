@@ -1,26 +1,13 @@
 registeries:
-  - master: registry1
-  - slave1: registry2
-  - slave2: registry3
+  - master: docker.afiniti.com
+  - slave1: 10.32.8.226:5001
 
 
 rules:
   rule1: 
-    repo: ui
+    repo: pis
     tags: 
-      - a
-      - b
+      - 1e73f385947
     source: master
     destination: 
       - slave1
-      - slave2
-  rule2:
-    repo: master
-    tags:  
-      - a
-      - b
-    source: master
-    destination:  
-      - slave1
-      - slave2
-        
