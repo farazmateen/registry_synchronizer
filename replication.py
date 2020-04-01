@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import requests
+from urllib.parse import urlparse
 import docker
 import logging
 import sys
@@ -34,20 +35,32 @@ def get_disjoint(src_list, dst_list):
 
 
 def pull_image(src_url, repo, tag):
+    src_url = strip_scheme(src_url)
     subprocess.run(["docker pull " + src_url + "/" + repo + ":" + tag], shell=True)
 
 
 def tag_image(src_url, dst_url, repo, tag):
+    src_url = strip_scheme(src_url)
+    dst_url = strip_scheme(dst_url)
     subprocess.run(["docker tag " + src_url + "/" + repo + ":" + tag + " " + dst_url + "/" + repo + ":" + tag], shell=True)
 
 
 def push_image(dst_url, repo, tag):
+    dst_url = strip_scheme(dst_url)
     subprocess.run(["docker push " + dst_url + "/" + repo + ":" + tag], shell=True)
 
 
 def clean_up(src_url, dst_url, repo, tag):
+    src_url = strip_scheme(src_url)
+    dst_url = strip_scheme(dst_url)
     subprocess.run(["docker rmi " + src_url + "/" + repo + ":" + tag], shell=True)
     subprocess.run(["docker rmi " + dst_url + "/" + repo + ":" + tag], shell=True)
+
+def strip_scheme(url):
+    parsed_url = urlparse(url)
+    scheme = "%s://" % parsed_url.scheme
+    return parsed_url.geturl().replace(scheme, '', 1)
+
 
 config = read_config()
 
@@ -70,13 +83,13 @@ for rule in config["rules"]:
     for destination in destination_list:
         dst_resp = fetch_tags_list(destination, repo)
         dst_tags = []
-        if tags in dst_resp:
+        if "tags" in dst_resp:
             dst_tags = dst_resp["tags"]
         for tag in tags:
             if tag not in dst_tags:
                 pull_image(source, repo, tag)
                 tag_image(source, destination, repo, tag)
-                push_image(dst_url, repo, tag)
+                push_image(destination, repo, tag)
 
         for tag in tags:
             clean_up(source, destination, repo, tag)
