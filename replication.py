@@ -77,7 +77,9 @@ for rule in config["rules"]:
     src_resp = fetch_tags_list(source, repo)
     if "tags" in src_resp:
         src_tags = src_resp["tags"]
-    # add else condition
+    else:
+        # src repo is empty
+        continue
 
     # add check for existence
     for destination in destination_list:
@@ -86,6 +88,8 @@ for rule in config["rules"]:
         if "tags" in dst_resp:
             dst_tags = dst_resp["tags"]
         for tag in tags:
+            if tag not in src_tags:
+                continue
             if tag not in dst_tags:
                 pull_image(source, repo, tag)
                 tag_image(source, destination, repo, tag)
