@@ -80,6 +80,8 @@ for rule in config["rules"]:
     else:
         # src repo is empty
         continue
+    if tags is None:
+        tags = src_tags
 
     # add check for existence
     for destination in destination_list:
