@@ -61,6 +61,13 @@ def strip_scheme(url):
     scheme = "%s://" % parsed_url.scheme
     return parsed_url.geturl().replace(scheme, '', 1)
 
+def get_image_digests_map(addr, repo, tags_list):
+    tags_digest_map = {}
+    for tag in tags_list:
+        resp = requests.get(addr + "/v2/" + repo + "/manifests/" + tag)
+        tags_digest_map.update({tag: resp.headers["Docker-Content-Digest"]}) 
+    return tags_digest_map
+
 
 config = read_config()
 
@@ -77,11 +84,13 @@ for rule in config["rules"]:
     src_resp = fetch_tags_list(source, repo)
     if "tags" in src_resp:
         src_tags = src_resp["tags"]
+
     else:
         # src repo is empty
         continue
     if tags is None:
         tags = src_tags
+    source_tags_map = get_image_digests_map(source, repo, src_tags)
 
     # add check for existence
     for destination in destination_list:
@@ -89,6 +98,8 @@ for rule in config["rules"]:
         dst_tags = []
         if "tags" in dst_resp:
             dst_tags = dst_resp["tags"]
+        dest_tags_map = get_image_digests_map(destination, repo, dst_tags)
+        
         for tag in tags:
             if tag not in src_tags:
                 continue
@@ -96,6 +107,13 @@ for rule in config["rules"]:
                 pull_image(source, repo, tag)
                 tag_image(source, destination, repo, tag)
                 push_image(destination, repo, tag)
+            elif tag in dst_tags:
+                if source_tags_map[tag] == dest_tags_map[tag]:
+                    continue
+                else:
+                    pull_image(source, repo, tag)
+                    tag_image(source, destination, repo, tag)
+                    push_image(destination, repo, tag)
 
         for tag in tags:
             clean_up(source, destination, repo, tag)
