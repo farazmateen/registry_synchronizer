@@ -64,7 +64,7 @@ def strip_scheme(url):
 def get_image_digests_map(addr, repo, tags_list):
     tags_digest_map = {}
     for tag in tags_list:
-        resp = requests.get(addr + "/v2/" + repo + "/manifests/" + tag)
+        resp = requests.get(addr + "/v2/" + repo + "/manifests/" + tag, verify=False)
         tags_digest_map.update({tag: resp.headers["Docker-Content-Digest"]}) 
     return tags_digest_map
 
