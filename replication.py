@@ -80,7 +80,11 @@ for rule in config["rules"]:
     repo = config["rules"][rule]["repo"]
     source = servers_dict[config["rules"][rule]["source"]]
     destination_list = [servers_dict[registry] for registry in config["rules"][rule]["destination"]]
-    tags = config["rules"][rule]["tags"]
+    if 'list' in config["rules"][rule]["tags"]:
+        tags = config["rules"][rule]["tags"]['list']
+    elif 'pattern' in config["rules"][rule]["tags"]:
+        regex = config["rules"][rule]["tags"]["pattern"]
+        tags = []
     src_resp = fetch_tags_list(source, repo)
     if "tags" in src_resp:
         src_tags = src_resp["tags"]
@@ -90,6 +94,11 @@ for rule in config["rules"]:
         continue
     if tags is None:
         tags = src_tags
+    elif 'pattern' in config["rules"][rule]["tags"]:
+        for tag in src_tags:
+             if bool(regex.search(tag)):
+                  tags.append(tag)
+                 
     source_tags_map = get_image_digests_map(source, repo, src_tags)
 
     # add check for existence
